@@ -3,7 +3,7 @@ export type User = {
     name: string;
     email: string;
     createdAt: string;
-    updatedAt: string;
+    updatedAt?: string;
 };
 
 export type Post = {
@@ -12,11 +12,15 @@ export type Post = {
     p_body: string;
     published: boolean;
     authorId: string;
-    author?: User;
+    author?: Pick<User, "id" | "name" | "email">;
     comments?: Comment[];
     likes?: Like[];
     categories?: Category[];
     tags?: Tag[];
+    _count?: {
+        likes: number;
+        comments: number;
+    };
     createdAt: string;
     updatedAt: string;
 }
@@ -26,7 +30,7 @@ export type Comment = {
     content: string;
     authorId: string;
     postId: string;
-    author?: User;
+    author?: Pick<User, "id" | "name">;
     createdAt: string;
     updatedAt: string;
 };
@@ -45,6 +49,8 @@ export type Like = {
     id: string;
     userId: string;
     postId: string;
+    user?: Pick<User, "id" | "name">;
+    post?: Pick<Post, "id" | "p_title">;
     createdAt: string;
 }
 
@@ -68,9 +74,15 @@ export type ApiResponse<T> ={
     data: T;
 };
 
-export type PagninatedResponse<T> = {
+export type PaginatedResponse<T> = {
     message: string;
     data: T[];
-    total: number;
-    page: number;
-}
+    pagination: {
+        currentPage: number;
+        totalPages: number;
+        totalPosts: number;
+        limit: number;
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
+    };
+};
