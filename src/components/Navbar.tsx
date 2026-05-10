@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { ChevronDown, LogOut, User } from "lucide-react";
-import { useAuth } from "../../globally/hooks/useAuths";
+import { useAuth } from "../globally/hooks/useAuths";
 
 export function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);

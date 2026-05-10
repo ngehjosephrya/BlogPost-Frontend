@@ -5,12 +5,13 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "react-router";
 
 import type { Route } from "./+types/root";
-import { AuthProvider } from "../src/context/authContext";
+import { AuthProvider } from "../src/context/AuthContext";
 import "./app.css";
-import { Navbar } from "./components/Navbar";
+import { Navbar } from "../src/components/Navbar";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -43,12 +44,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+const AUTH_ROUTES = ["/login", "/register"];
+
 export default function App() {
+  const location = useLocation();
+  const isAuthPage = AUTH_ROUTES.includes(location.pathname);
   return (
     <AuthProvider>
-      <Navbar />
+     {!isAuthPage && <Navbar />}
       <Outlet />
     </AuthProvider>
+
   );
 }
 

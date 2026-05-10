@@ -45,7 +45,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async (email: string, password: string) => {
     try {
-        setIsLoading(true);
         setError(null);
 
         const res = await authService.signIn({email, password});
@@ -56,14 +55,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const message = err instanceof Error ? err.message : "Sign in failed";
         setError(message);
         throw err;
-    }finally{
-        setIsLoading(false);
     }
   }, []);
 
   const signUp = useCallback(async (name: string, email: string, password: string) => {
     try {
-        setIsLoading(true);
         setError(null);
 
         const res = await authService.signUp({name, email, password});
@@ -74,21 +70,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const message = err instanceof Error ? err.message: "Sign up failed";
         setError(message);
         throw err;
-    }finally{
-        setIsLoading(false);
     }
   }, []);
 
   const signOut = useCallback(async () => {
     try {
-        setIsLoading(true);
         await authService.signOut();
     } catch (err) {
         
     }finally{
         setUser(null);
         localStorage.removeItem("user");
-        setIsLoading(false);
     }
   }, []);
 
