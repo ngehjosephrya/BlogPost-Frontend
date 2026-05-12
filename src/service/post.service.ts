@@ -20,21 +20,21 @@ type UpdatePostPayload = {
 export const postService = {
     getAll: (page= 1, limit=10, search = "") =>
         api.get<PaginatedResponse<Post>>(
-            `/post?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`
+            `/posts?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`
         ),
     
     getById: (id: string) => 
-        api.get<ApiResponse<Post>>(`/post/${id}`),
+        api.get<ApiResponse<Post>>(`/posts/${id}`),
 
     getByUserId: (userId: string) =>
-        api.get<{success: boolean; data: Post[]}>(`/post/users/${userId}`),
+        api.get<{success: boolean; data: Post[]}>(`/posts/users/${userId}`),
 
     create: (data: CreatePostPayload) =>
-        api.post<ApiResponse<Post>>("/post", { data }),
+        api.post<ApiResponse<Post>>("/posts", { data }),
 
     update: (id: string, data: UpdatePostPayload) =>
-        api.put<ApiResponse<Post>>(`/post/${id}`, data),
+        api.put<ApiResponse<Post>>(`/posts/${id}`, data),
 
     delete: (id: string) => 
-        api.delete<ApiResponse<null>>(`/post/${id}`),
+        api.delete<ApiResponse<null>>(`/posts/${id}`),
 };

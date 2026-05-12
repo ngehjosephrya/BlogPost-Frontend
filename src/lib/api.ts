@@ -17,7 +17,8 @@ async function request<T>(
   });
 
   if (res.status === 401) {
-    const isAuthRoute = endpoint.includes("/auth/sign");
+    const isAuthRoute =
+      endpoint.includes("/auth/sign") || endpoint.includes("/auth/");
 
     if (!isAuthRoute) {
       window.location.href = "/login";

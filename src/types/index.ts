@@ -10,6 +10,7 @@ export type Post = {
     id: string;
     p_title: string;
     p_body: string;
+    imageUrl?: string;
     published: boolean;
     authorId: string;
     author?: Pick<User, "id" | "name" | "email">;
