@@ -11,7 +11,7 @@ export function LogoMark({ linkDisabled = false }: LogoMarkProps) {
         <span className="block h-[2.5px] w-full bg-gray-900 dark:bg-white rounded-sm" />
         <span className="block h-[2.5px] w-[65%] bg-gray-900 dark:bg-white rounded-sm" />
       </div>
-      Blog Template
+      VIBELY
     </>
   );
 

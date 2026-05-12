@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { LogIn } from "lucide-react";
-import { useAuth } from "../../src/globally/hooks/useAuths";
+import { useAuth } from "../../src/hooks/useAuths";
 import {
   Field,
   Input,

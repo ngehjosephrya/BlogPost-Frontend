@@ -10,7 +10,7 @@ import {
 } from "../../src/components/ui";
 import { LogoMark } from "../../src/components/auth/LogoMark";
 import { RightPanel } from "../../src/components/auth/RightPanel";
-import { useAuth } from "../../src/globally/hooks/useAuths";
+import { useAuth } from "../../src/hooks/useAuths";
 
 export default function Register() {
   const { signUp, isAuthenticated, isLoading, error, clearError } = useAuth();

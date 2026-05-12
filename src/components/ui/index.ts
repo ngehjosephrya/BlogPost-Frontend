@@ -4,3 +4,4 @@ export {Button} from "./Button";
 export {Field} from "./Field";
 export {Spinner} from "./Spinner";
 export {ErrorBanner} from "./ErrorBanner";
+export {ImagePlaceholder} from "./ImagePlaceholder";
