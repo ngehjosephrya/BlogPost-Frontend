@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuths";
 import { postService } from "../service/post.service";
 import type { Post } from "../types";
+import { useClickOutside } from "../hooks/useClickOutside";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen]       = useState(false);
@@ -27,21 +28,13 @@ export function Navbar() {
     setSearchResults([]);
   }, [location.pathname]);
 
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setSearchOpen(false);
-        setSearchQuery("");
-        setSearchResults([]);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
+  useClickOutside(menuRef, () => setMenuOpen(false));
 
+  useClickOutside(searchRef, () => {
+    setSearchOpen(false);
+    setSearchQuery("");
+    setSearchResults([]);
+  })
   useEffect(() => {
     if (searchOpen) inputRef.current?.focus();
   }, [searchOpen]);
