@@ -4,7 +4,7 @@ type InputProps = InputHTMLAttributes<HTMLInputElement> & {
     error?: boolean;
 };
 
-export function Input({ error, ...props }: InputProps) {
+export function Input({ error, className, ...props }: InputProps) {
   const base = `w-full h-10 px-3 text-sm rounded-lg border outline-none 
                 transition-colors text-gray-900 dark:text-white 
                 bg-white dark:bg-gray-800
@@ -14,7 +14,7 @@ export function Input({ error, ...props }: InputProps) {
 
   return (
     <input
-      className={`${base} ${error ? errored : normal}`}
+      className={`${base} ${error ? errored : normal} ${className ?? ""}`}
       {...props}
     />
   );

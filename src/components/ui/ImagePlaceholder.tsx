@@ -5,7 +5,7 @@ type ImagePlaceholderProps = {
 
 export function ImagePlaceholder({ title, imageUrl }: ImagePlaceholderProps) {
   return (
-    <div className="w-full aspect-4/3 rounded-xl bg-gray-100 dark:bggr-800 overflow-hidden">
+    <div className="w-full aspect-4/3 rounded-xl bg-gray-100 dark:bg-gray-800 overflow-hidden">
       {imageUrl ? (
         <img
           src={imageUrl}
