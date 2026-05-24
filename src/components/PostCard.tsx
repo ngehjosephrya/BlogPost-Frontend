@@ -1,5 +1,4 @@
 import { Link } from "react-router";
-import { ChevronRight } from "lucide-react";
 import type { Post } from "../types";
 import { ImagePlaceholder } from "./ui";
 import { Avatar } from "./ui/Avatar";
@@ -8,8 +7,12 @@ type PostCardProps = {
   post: Post;
 };
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, "").trim();
+}
+
 function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString("en-Us", {
+  return new Date(dateString).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -31,12 +34,13 @@ export function PostCard({ post }: PostCardProps) {
         </span>
       </div>
 
-      <h2 className="text-base font-medium text-gray-900 dark:text-white leading-snug line-clamp-2">
+      <h2 className="text-base font-medium text-gray-900 dark:text-white
+                     leading-snug line-clamp-2">
         {post.p_title}
       </h2>
 
       <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
-        {post.p_body}
+        {stripHtml(post.p_body)}
       </p>
 
       <Link
@@ -47,8 +51,26 @@ export function PostCard({ post }: PostCardProps) {
                    transition-colors w-fit"
       >
         READ MORE
-        <ChevronRight />
+        <ChevronRightIcon />
       </Link>
     </div>
+  );
+}
+
+function ChevronRightIcon() {
+  return (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M9 18l6-6-6-6" />
+    </svg>
   );
 }

@@ -1,10 +1,10 @@
-type ToogleProps = {
+type ToggleProps = {
   checked: boolean;
   onChange: (checked: boolean) => void;
   label: string;
 };
 
-export function Toogle({ checked, onChange, label }: ToogleProps) {
+export function Toggle({ checked, onChange, label }: ToggleProps) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-sm text-gray-600 dark:text-gray-400">{label}</span>

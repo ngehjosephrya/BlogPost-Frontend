@@ -7,7 +7,7 @@ export default [
 
     layout("../src/components/ProtectedRoute.tsx", [
         // route("dashboard",          "routes/dashboard.tsx"),
-        // route("post/new",           "routes/posts/new.tsx"),
+        route("posts/new",           "routes/posts/new.tsx"),
         // route("posts/:id/edit",     "routes/posts/edit.tsx"),
         // route("profile/:id",        "routes/profile.tsx"),
 

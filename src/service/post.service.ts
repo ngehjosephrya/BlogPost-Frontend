@@ -4,18 +4,31 @@ import type {ApiResponse,PaginatedResponse, Post} from "../types";
 type CreatePostPayload = {
     p_title: string;
     p_body: string;
-    published: boolean;
-    categories: string[];
-    tags: string[];
+    imageUrl?: string;
+    published?: boolean;
+    categories?: string[];
+    tags?: string[];
 }
 
 type UpdatePostPayload = {
     p_title?: string;
     p_body?: string;
+    imageUrl?: string;
     published?: boolean;
     categories?: string[];
     tags?: string[];
 }
+
+type ImageUplaodResponse = {
+    success: boolean;
+    message: string;
+    data : {
+        url: string;
+        publicId: string;
+        width: number;
+        height: number;
+    };
+};
 
 export const postService = {
     getAll: (page= 1, limit=10, search = "") =>
@@ -30,11 +43,30 @@ export const postService = {
         api.get<{success: boolean; data: Post[]}>(`/posts/users/${userId}`),
 
     create: (data: CreatePostPayload) =>
-        api.post<ApiResponse<Post>>("/posts", { data }),
+        api.post<ApiResponse<Post>>("/posts", data),
 
     update: (id: string, data: UpdatePostPayload) =>
         api.put<ApiResponse<Post>>(`/posts/${id}`, data),
 
     delete: (id: string) => 
         api.delete<ApiResponse<null>>(`/posts/${id}`),
+    
+    uploadImage: async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const res = await fetch("/api/v1/upload/image", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+    });
+
+    const data: ImageUplaodResponse = await res.json();
+
+    if (!res.ok) {
+        throw new Error(data.message || "Image upload failed");
+    }
+
+    return data.data.url;
+    },
 };
