@@ -5,8 +5,8 @@ type RightPanelProps = {
 
 export function RightPanel({ quote, author }: RightPanelProps) {
   return (
-    <div className="relative bg-[#f5f4f0] dark:bg-gray-800 flex items-center
-                    justify-center px-16 overflow-hidden">
+    <div className="hidden lg:flex relative bg-[#f5f4f0] dark:bg-gray-800
+                    items-center justify-center px-16 overflow-hidden">
       {/* Decorative circles */}
       <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full
                       border border-[#d3d1c7] dark:border-gray-700" />

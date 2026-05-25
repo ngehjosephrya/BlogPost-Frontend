@@ -48,7 +48,7 @@ const AUTH_ROUTES = ["/login", "/register"];
 
 export default function App() {
   const location = useLocation();
-  const isAuthPage = AUTH_ROUTES.includes(location.pathname);
+  const isAuthPage = AUTH_ROUTES.includes(location.pathname) || location.pathname.startsWith("/posts/");
   return (
     <AuthProvider>
      {!isAuthPage && <Navbar />}

@@ -55,9 +55,10 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-2">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
       {/*Left Panel */}
-      <div className="flex flex-col justify-between px-12 py-10 dark:bg-gray-900">
+      <div className="flex flex-col justify-between px-6 py-8 md:px-12 md:py-10
+                bg-white dark:bg-gray-900">
         <LogoMark linkDisabled/>
 
         <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto">
