@@ -36,7 +36,9 @@ export const usersService = {
     const formData = new FormData();
     formData.append("image", file);
 
-    const res = await fetch("/api/v1/upload/avatar", {
+    const BASE_URL = import.meta.env.VITE_API_URL ?? "/api/v1";
+
+    const res = await fetch(`${BASE_URL}/upload/avatar`,{
       method:      "POST",
       credentials: "include",
       body:        formData,
