@@ -1,6 +1,6 @@
 type AvatarProps = {
   name:      string;
-  imageUrl?: string;   // ← add this
+  imageUrl?: string | null;   // ← add this
   size?:     "sm" | "md";
 };
 

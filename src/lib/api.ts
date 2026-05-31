@@ -1,4 +1,5 @@
-const BASE_URL = import.meta.env.VITE_API_URL ?? "/api/v1";
+// lib/api.ts
+const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5500/api"; // ← Fixed: removed /v1 unless your backend uses it
 
 type RequestOptions = {
   method?: string;
@@ -11,25 +12,43 @@ async function request<T>(
   options: RequestOptions = {},
 ): Promise<T> {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
-    headers: { "Content-Type": "application/json", ...options.headers },
-    credentials: "include",
+    method: options.method || "GET",
+    headers: { 
+      "Content-Type": "application/json", 
+      ...options.headers 
+    },
+    credentials: "include", // ← CRITICAL: sends cookies
     ...options,
+    body: options.body, // ← ensure body is properly passed
   });
 
-  if (res.status === 401) {
-    const isAuthRoute =
-      endpoint.includes("/auth/sign") || endpoint.includes("/auth/");
+  // Parse response once
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    data = { message: "Invalid response from server" };
+  }
 
+  // Handle 401 - but don't redirect for auth routes
+  if (res.status === 401) {
+    const isAuthRoute = 
+      endpoint.includes("/auth/sign") || 
+      endpoint.includes("/auth/me") ||
+      endpoint === "/auth/signout";
+    
+    // Only redirect non-auth routes
     if (!isAuthRoute) {
-      window.location.href = "/login";
-      return Promise.reject("Unauthenticated");
+      // Clear stored user data
+      localStorage.removeItem("user");
+      window.location.href = "/signin";
+      return Promise.reject(new Error("Unauthenticated"));
     }
   }
 
-  const data = await res.json();
-
+  // Check if response is not ok
   if (!res.ok) {
-    throw new Error(data.message ?? "Request failed");
+    throw new Error(data.message || data.error || "Request failed");
   }
 
   return data as T;
