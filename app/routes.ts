@@ -7,10 +7,12 @@ export default [
     route("posts/:postId", "routes/posts/$postId.tsx"),
 
     layout("../src/components/ProtectedRoute.tsx", [
-        // route("dashboard",          "routes/dashboard.tsx"),
         route("posts/new",           "routes/posts/new.tsx"),
-        // route("posts/:id/edit",     "routes/posts/edit.tsx"),
-        // route("profile/:id",        "routes/profile.tsx"),
+        route("posts/:postId/edit",     "routes/posts/$postId.edit.tsx"),
+        route("dashboard",          "routes/dashboard.tsx"),
+        route("profile/:id",        "routes/profile.tsx"),
 
-    ])
+    ]),
+
+    route("*", "routes/404.tsx"),
 ] satisfies RouteConfig;

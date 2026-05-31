@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router";
+import { useNavigate, useParams, Link } from "react-router";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
@@ -9,13 +9,19 @@ import { postService } from "../../../src/service/post.service";
 import { ErrorBanner, Toggle, TagInput } from "../../../src/components/ui";
 import { Toolbar } from "../../../src/components/editor/Toolbar";
 import { ImageUploadZone } from "../../../src/components/editor/ImageUploadZone";
-import { SuccessModal } from "../../../src/components/ui/SuccesModal";
+import type { Post } from "../../../src/types";
+import { Avatar } from "../../../src/components/ui/Avatar";
 
 type Tab = "write" | "settings";
 
-export default function NewPost() {
-  const { user, isAuthenticated, isLoading } = useAuth();
+export default function EditPost() {
+  const { postId } = useParams<{ postId: string }>();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
+
+  const [post, setPost] = useState<Post | null>(null);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [pageError, setPageError] = useState<string | null>(null);
 
   const [activeTab, setActiveTab] = useState<Tab>("write");
   const [title, setTitle] = useState("");
@@ -23,29 +29,10 @@ export default function NewPost() {
   const [categories, setCategories] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [published, setPublished] = useState(false);
+
   const [submitting, setSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [categorySuggestions, setCategorySuggestions] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      navigate("/login", { replace: true });
-    }
-  }, [isLoading, isAuthenticated, navigate]);
-
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      try {
-        const res = await postService.getAll(1, 100);
-        const cats = res.data
-          .flatMap((p) => p.categories?.map((c) => c.name) ?? [])
-          .filter((v, i, arr) => arr.indexOf(v) === i);
-        setCategorySuggestions(cats);
-      } catch {}
-    };
-    fetchSuggestions();
-  }, []);
 
   const editor = useEditor({
     extensions: [
@@ -61,6 +48,61 @@ export default function NewPost() {
     },
   });
 
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      navigate("/login", { replace: true });
+    }
+  }, [authLoading, isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (!postId || authLoading) return;
+
+    const fetchPost = async () => {
+      try {
+        setPageLoading(true);
+        const res = await postService.getById(postId);
+        const data = res.data;
+
+        if (user && data.authorId !== user.id) {
+          navigate("/dashboard", { replace: true });
+          return;
+        }
+
+        setPost(data);
+        setTitle(data.p_title);
+        setImageUrl(data.imageUrl ?? null);
+        setPublished(data.published);
+        setCategories(data.categories?.map((c) => c.name) ?? []);
+        setTags(data.tags?.map((t) => t.name) ?? []);
+      } catch {
+        setPageError("Post not found or failed to load.");
+      } finally {
+        setPageLoading(false);
+      }
+    };
+
+    fetchPost();
+  }, [postId, authLoading]);
+
+  useEffect(() => {
+    if (post?.p_body && editor && !editor.isDestroyed) {
+      editor.commands.setContent(post.p_body);
+    }
+  }, [post, editor]);
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      try {
+        const res = await postService.getAll(1, 100);
+        const cats = res.data
+          .flatMap((p) => p.categories?.map((c) => c.name) ?? [])
+          .filter((v, i, arr) => arr.indexOf(v) === i);
+        setCategorySuggestions(cats);
+      } catch {}
+    };
+    fetchSuggestions();
+  }, []);
+
   const validate = (): string | null => {
     if (!title.trim()) return "Please add a title.";
     if (title.trim().length < 5) return "Title must be at least 5 characters.";
@@ -70,17 +112,21 @@ export default function NewPost() {
   };
 
   const handleSubmit = async (asDraft: boolean) => {
+    if (!postId) return;
+
     const validationError = validate();
     if (validationError) {
       setError(validationError);
-      setActiveTab("write"); // ← switch to write tab to show error
+      setActiveTab("write");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
+
     try {
       setSubmitting(true);
       setError(null);
-      await postService.create({
+
+      await postService.update(postId, {
         p_title: title.trim(),
         p_body: editor!.getHTML(),
         imageUrl: imageUrl ?? undefined,
@@ -88,62 +134,92 @@ export default function NewPost() {
         categories,
         tags,
       });
-      setShowSuccess(true);
+
+      navigate(`/posts/${postId}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create post.");
+      setError(err instanceof Error ? err.message : "Failed to save changes.");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (isLoading) {
+  if (authLoading || pageLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950">
+      <div
+        className="min-h-screen flex items-center justify-center
+                      bg-white dark:bg-gray-950"
+      >
         <PageSpinner />
+      </div>
+    );
+  }
+
+  if (pageError) {
+    return (
+      <div
+        className="min-h-screen flex flex-col items-center justify-center
+                      gap-4 bg-white dark:bg-gray-950"
+      >
+        <p className="text-sm text-gray-500 dark:text-gray-400">{pageError}</p>
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="text-sm text-gray-900 dark:text-white underline
+                     underline-offset-2"
+        >
+          Back to dashboard
+        </button>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
-      {showSuccess && (
-        <SuccessModal
-          title="Post published successfully"
-          message="Your post is now live and visible to everyone."
-          onClose={() => setShowSuccess(false)}
-        />
-      )}
-
       <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <button
               onClick={() => window.history.back()}
               className="flex items-center gap-1.5 text-sm text-gray-500
-             dark:text-gray-400 hover:text-gray-900
-             dark:hover:text-white transition-colors"
+                         dark:text-gray-400 hover:text-gray-900
+                         dark:hover:text-white transition-colors"
             >
               <BackIcon />
               <span className="hidden sm:inline">Back</span>
             </button>
             <div className="w-px h-3.5 bg-gray-200 dark:bg-gray-700 hidden sm:block" />
             <span className="text-sm font-medium text-gray-900 dark:text-white">
-              New post
+              Edit post
             </span>
           </div>
+
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => handleSubmit(true)}
-              disabled={submitting}
-              className="text-sm text-gray-600 dark:text-gray-400 border
-                         border-gray-200 dark:border-gray-700 px-3 md:px-4 py-1.5
-                         rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800
-                         disabled:opacity-50 transition-colors"
-            >
-              {submitting ? "Saving..." : "Save draft"}
-            </button>
+            {published && (
+              <button
+                type="button"
+                onClick={() => handleSubmit(true)}
+                disabled={submitting}
+                className="text-sm text-gray-600 dark:text-gray-400 border
+                           border-gray-200 dark:border-gray-700 px-3 md:px-4
+                           py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800
+                           disabled:opacity-50 transition-colors"
+              >
+                Unpublish
+              </button>
+            )}
+            {!published && (
+              <button
+                type="button"
+                onClick={() => handleSubmit(true)}
+                disabled={submitting}
+                className="text-sm text-gray-600 dark:text-gray-400 border
+                           border-gray-200 dark:border-gray-700 px-3 md:px-4
+                           py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800
+                           disabled:opacity-50 transition-colors"
+              >
+                {submitting ? "Saving..." : "Save draft"}
+              </button>
+            )}
             <button
               type="button"
               onClick={() => handleSubmit(false)}
@@ -153,7 +229,7 @@ export default function NewPost() {
                          rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100
                          disabled:opacity-50 transition-colors"
             >
-              {submitting ? "Publishing..." : "Publish"}
+              {submitting ? "Saving..." : "Save changes"}
             </button>
           </div>
         </div>
@@ -164,8 +240,10 @@ export default function NewPost() {
           </div>
         )}
 
-        {/* Mobile tabs — only visible on small screens */}
-        <div className="flex lg:hidden border-b border-gray-100 dark:border-gray-800 mb-4">
+        <div
+          className="flex lg:hidden border-b border-gray-100
+                        dark:border-gray-800 mb-4"
+        >
           <TabButton
             active={activeTab === "write"}
             onClick={() => setActiveTab("write")}
@@ -180,9 +258,7 @@ export default function NewPost() {
           </TabButton>
         </div>
 
-        {/* Desktop: two columns — Mobile: tabs */}
         <div className="lg:grid lg:grid-cols-[1fr_272px] lg:gap-6 lg:items-start">
-          {/* Editor — hidden on mobile when settings tab active */}
           <div
             className={`${activeTab === "settings" ? "hidden lg:block" : "block"}`}
           >
@@ -201,15 +277,20 @@ export default function NewPost() {
                   placeholder="Post title..."
                   rows={2}
                   maxLength={200}
-                  className="w-full text-xl md:text-2xl font-medium text-gray-900
-                             dark:text-white placeholder:text-gray-300
-                             dark:placeholder:text-gray-700 bg-transparent
-                             border-none outline-none resize-none leading-snug"
+                  className="w-full text-xl md:text-2xl font-medium
+                             text-gray-900 dark:text-white
+                             placeholder:text-gray-300 dark:placeholder:text-gray-700
+                             bg-transparent border-none outline-none resize-none
+                             leading-snug"
                 />
-                <p className="text-xs text-gray-300 dark:text-gray-700 text-right mt-1">
+                <p
+                  className="text-xs text-gray-300 dark:text-gray-700
+                               text-right mt-1"
+                >
                   {title.length} / 200
                 </p>
               </div>
+
               <div className="h-px bg-gray-100 dark:bg-gray-800" />
               <Toolbar editor={editor} />
               <div className="h-px bg-gray-100 dark:bg-gray-800" />
@@ -217,16 +298,21 @@ export default function NewPost() {
             </div>
           </div>
 
-          {/* Sidebar — hidden on mobile when write tab active */}
           <div
-            className={`${activeTab === "write" ? "hidden lg:flex" : "flex"} flex-col gap-4 mt-4 lg:mt-0`}
+            className={`${activeTab === "write" ? "hidden lg:flex" : "flex"}
+                          flex-col gap-4 mt-4 lg:mt-0`}
           >
             <SidebarCard label="COVER IMAGE">
               <ImageUploadZone
                 imageUrl={imageUrl}
-                onUpload={setImageUrl}
+                onUpload={(url) => setImageUrl(url)}
                 onRemove={() => setImageUrl(null)}
               />
+              {post?.imageUrl && !imageUrl && (
+                <p className="text-xs text-gray-400 dark:text-gray-600 mt-2">
+                  Original image removed. Upload a new one or leave empty.
+                </p>
+              )}
             </SidebarCard>
 
             <SidebarCard label="CATEGORIES">
@@ -254,24 +340,25 @@ export default function NewPost() {
               <Toggle
                 checked={published}
                 onChange={setPublished}
-                label="Publish immediately"
+                label="Published"
               />
-              <p className="text-xs text-gray-400 dark:text-gray-600 mt-2 leading-relaxed">
+              <p
+                className="text-xs text-gray-400 dark:text-gray-600
+                             mt-2 leading-relaxed"
+              >
                 {published
-                  ? "Post will be visible to everyone."
-                  : "Post will be saved as a private draft."}
+                  ? "Post is visible to everyone."
+                  : "Post is saved as a private draft."}
               </p>
             </SidebarCard>
 
             <SidebarCard label="AUTHOR">
               <div className="flex items-center gap-2.5">
-                <div
-                  className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800
-                                flex items-center justify-center text-xs font-medium
-                                text-gray-600 dark:text-gray-400 shrink-0"
-                >
-                  {user?.name.charAt(0).toUpperCase()}
-                </div>
+                <Avatar
+                  name={user?.name ?? "?"}
+                  imageUrl={user?.avatarUrl}
+                  size="md"
+                />
                 <div>
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {user?.name}
@@ -282,6 +369,17 @@ export default function NewPost() {
                 </div>
               </div>
             </SidebarCard>
+
+            {post?.updatedAt && (
+              <p className="text-xs text-gray-400 dark:text-gray-600 text-center">
+                Last saved{" "}
+                {new Date(post.updatedAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -329,7 +427,7 @@ function TabButton({
                   ${
                     active
                       ? "text-gray-900 dark:text-white border-gray-900 dark:border-white"
-                      : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300"
+                      : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700"
                   }`}
     >
       {children}

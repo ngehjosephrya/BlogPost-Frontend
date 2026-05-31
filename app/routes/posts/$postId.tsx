@@ -6,6 +6,7 @@ import { useAuth } from "../../../src/hooks/useAuths";
 import { PostContent } from "../../../src/components/PostContent";
 import { CommentSection } from "../../../src/components/CommentSection";
 import type { Post, Comment, Like } from "../../../src/types";
+import { Avatar } from "../../../src/components/ui/Avatar";
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -70,8 +71,9 @@ export default function PostDetail() {
     if (!isAuthenticated || !postId || liking) return;
 
     try {
+      setLiking(true);
+
       if (hasLiked) {
-        setLiking(true);
         await likesService.unlike(postId);
         setLikes((prev) => prev.filter((l) => l.userId !== user?.id));
       } else {
@@ -121,7 +123,6 @@ export default function PostDetail() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
-      {/* ── Top bar ───────────────────────────────────────────────────────── */}
       <div
         className="border-b border-gray-100 dark:border-gray-800 px-6 py-3.5
                       flex items-center justify-between"
@@ -146,9 +147,7 @@ export default function PostDetail() {
         </Link>
       </div>
 
-      {/* ── Content ───────────────────────────────────────────────────────── */}
       <div className="max-w-2xl mx-auto px-6 py-12">
-        {/* Categories */}
         {post.categories && post.categories.length > 0 && (
           <div className="flex gap-2 flex-wrap mb-4">
             {post.categories.map((cat) => (
@@ -164,7 +163,6 @@ export default function PostDetail() {
           </div>
         )}
 
-        {/* Title */}
         <h1
           className="text-3xl font-medium text-gray-900 dark:text-white
                        leading-snug mb-5"
@@ -172,15 +170,12 @@ export default function PostDetail() {
           {post.p_title}
         </h1>
 
-        {/* Author + meta */}
         <div className="flex items-center gap-2.5 mb-8">
-          <div
-            className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800
-                          flex items-center justify-center text-xs font-medium
-                          text-gray-600 dark:text-gray-400 shrink-0"
-          >
-            {getInitials(post.author?.name ?? "?")}
-          </div>
+          <Avatar
+            name={post.author?.name ?? "?"}
+            imageUrl={post.author?.avatarUrl}
+            size="md"
+          />
           <span className="text-sm font-medium text-gray-900 dark:text-white">
             {post.author?.name ?? "Unknown"}
           </span>
@@ -194,7 +189,6 @@ export default function PostDetail() {
           </span>
         </div>
 
-        {/* Cover image */}
         {post.imageUrl && (
           <div className="w-full rounded-xl overflow-hidden mb-10">
             <img
@@ -205,10 +199,8 @@ export default function PostDetail() {
           </div>
         )}
 
-        {/* Post body — renders Tiptap HTML with all formatting */}
         <PostContent html={post.p_body} />
 
-        {/* Tags */}
         {post.tags && post.tags.length > 0 && (
           <div className="flex gap-2 flex-wrap mt-8">
             {post.tags.map((tag) => (
@@ -224,13 +216,10 @@ export default function PostDetail() {
           </div>
         )}
 
-        {/* Divider */}
         <div className="h-px bg-gray-100 dark:bg-gray-800 my-8" />
 
-        {/* Action bar */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {/* Like button */}
             <button
               onClick={handleLike}
               disabled={!isAuthenticated || liking}
@@ -239,7 +228,7 @@ export default function PostDetail() {
                          disabled:cursor-not-allowed
                          ${
                            hasLiked
-                             ? "text-red-500 border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-950"
+                             ? "text-red-500 border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950"
                              : "text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
                          }`}
               title={
@@ -254,7 +243,6 @@ export default function PostDetail() {
               {likes.length} {likes.length === 1 ? "like" : "likes"}
             </button>
 
-            {/* Comment count */}
             <button
               onClick={() =>
                 document
@@ -271,7 +259,6 @@ export default function PostDetail() {
             </button>
           </div>
 
-          {/* Share button */}
           <button
             onClick={handleShare}
             className="flex items-center gap-1.5 text-sm text-gray-500
@@ -284,7 +271,6 @@ export default function PostDetail() {
           </button>
         </div>
 
-        {/* Comments section */}
         <div id="comments">
           <CommentSection
             postId={post.id}
@@ -298,8 +284,6 @@ export default function PostDetail() {
     </div>
   );
 }
-
-// ─── Icons ────────────────────────────────────────────────────────────────────
 
 function LogoMark() {
   return (

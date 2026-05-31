@@ -5,6 +5,18 @@ type UpdateUserPayload = {
     name?: string;
     email?: string;
     password?: string;
+    avatarUrl?: string;
+};
+
+type AvatarUploadResponse = {
+    success: boolean;
+    message: string;
+    data: {
+        url: string;
+        publicId: string;
+        width: number;
+        height: number;
+    };
 };
 
 export const usersService = {
@@ -20,4 +32,22 @@ export const usersService = {
     delete: (id: string) =>
         api.delete<ApiResponse<User>>(`/users/${id}`),
 
+    uploadAvatar: async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const res = await fetch("/api/v1/upload/avatar", {
+      method:      "POST",
+      credentials: "include",
+      body:        formData,
+    });
+
+    const data: AvatarUploadResponse = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message ?? "Avatar upload failed");
+    }
+
+    return data.data.url;
+  },
 }

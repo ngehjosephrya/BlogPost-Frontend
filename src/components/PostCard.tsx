@@ -26,7 +26,9 @@ export function PostCard({ post }: PostCardProps) {
       <ImagePlaceholder title={post.p_title} imageUrl={post.imageUrl} />
 
       <div className="flex items-center gap-2">
-        <Avatar name={post.author?.name ?? "?"} />
+        <Avatar 
+        name={post.author?.name ?? "?"} 
+        imageUrl={post.author?.avatarUrl} />
         <span className="text-sm font-medium text-gray-900 dark:text-white">
           {post.author?.name ?? "Unknown"}
         </span>

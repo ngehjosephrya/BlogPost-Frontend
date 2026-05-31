@@ -12,4 +12,9 @@ body {
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }
+
+  /* iPhone home indicator safe area */
+.pb-safe {
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
 }

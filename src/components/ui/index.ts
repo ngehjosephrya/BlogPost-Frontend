@@ -11,3 +11,5 @@ export {Textarea} from "./Textarea";
 export {Toggle} from "./Toggle";
 export {TagInput} from "./TagInput";
 export {SuccessModal} from "./SuccesModal";
+export {StatCard} from "./StatCard";
+export {ConfirmModal} from "./ConfirmModal";

@@ -2,6 +2,7 @@ export type User = {
     id: string;
     name: string;
     email: string;
+    avatarUrl?: string;
     createdAt: string;
     updatedAt?: string;
 };
@@ -13,7 +14,7 @@ export type Post = {
     imageUrl?: string;
     published: boolean;
     authorId: string;
-    author?: Pick<User, "id" | "name" | "email">;
+    author?: Pick<User, "id" | "name" | "email" | "avatarUrl">;
     comments?: Comment[];
     likes?: Like[];
     categories?: Category[];
@@ -31,7 +32,7 @@ export type Comment = {
     content: string;
     authorId: string;
     postId: string;
-    author?: Pick<User, "id" | "name">;
+    author?: Pick<User, "id" | "name" | "email" | "avatarUrl">;
     createdAt: string;
     updatedAt: string;
 };

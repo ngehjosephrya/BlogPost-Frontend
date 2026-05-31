@@ -12,6 +12,8 @@ import type { Route } from "./+types/root";
 import { AuthProvider } from "../src/context/AuthContext";
 import "./app.css";
 import { Navbar } from "../src/components/Navbar";
+import { BottomTabBar } from "../src/components/BottomTabBar";
+import { MobileHeader } from "../src/components/MobileHeader";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -48,13 +50,20 @@ const AUTH_ROUTES = ["/login", "/register"];
 
 export default function App() {
   const location = useLocation();
-  const isAuthPage = AUTH_ROUTES.includes(location.pathname) || location.pathname.startsWith("/posts/");
+  const isAuthPage =
+    AUTH_ROUTES.includes(location.pathname) ||
+    location.pathname.startsWith("/posts/");
   return (
     <AuthProvider>
-     {!isAuthPage && <Navbar />}
-      <Outlet />
+      <div className="flex flex-col min-h-full">
+        {!isAuthPage && <Navbar />} {/* desktop only — hidden lg:flex */}
+        {!isAuthPage && <MobileHeader />} {/* mobile only */}
+        <main className="flex-1 pb-16 lg:pb-0">
+          <Outlet />
+        </main>
+      </div>
+      <BottomTabBar />
     </AuthProvider>
-
   );
 }
 

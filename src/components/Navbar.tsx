@@ -71,9 +71,9 @@ export function Navbar() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="w-full border-b border-gray-100 dark:border-gray-800
-                    bg-white dark:bg-gray-950 px-7 h-14 flex items-center
-                    justify-between gap-3 sticky top-0 z-50">
+    <nav className="hidden lg:flex w-full border-b border-gray-100 dark:border-gray-800
+                  bg-white dark:bg-gray-950 px-7 h-14 items-center
+                  justify-between gap-3 sticky top-0 z-50">
 
       <Link
         to="/"
@@ -199,7 +199,7 @@ export function Navbar() {
               className="flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-md
                          hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              <UserAvatar name={user?.name ?? "?"} />
+              <UserAvatar name={user?.name ?? "?"} avatarUrl={user?.avatarUrl} />
               <span className="text-sm text-gray-900 dark:text-white">
                 {user?.name.split(" ")[0]}
               </span>
@@ -210,7 +210,7 @@ export function Navbar() {
               <div className="absolute top-[calc(100%+6px)] right-0 bg-white
                               dark:bg-gray-900 border border-gray-100
                               dark:border-gray-800 rounded-xl p-1.5
-                              min-w-[188px] z-50">
+                              min-w-47 z-50">
 
                 <p className="text-[10px] font-medium tracking-widest
                                text-gray-400 dark:text-gray-600 px-2.5 pt-1 pb-2">
@@ -286,20 +286,26 @@ function MenuItem({ to, icon, children }: {
   );
 }
 
-function UserAvatar({ name }: { name: string }) {
+function UserAvatar({ name, avatarUrl }: { name: string; avatarUrl?: string }) {
   const initials = name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+
   return (
-    <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-700 flex
-                    items-center justify-center text-[11px] font-medium
-                    text-gray-600 dark:text-gray-300">
-      {initials}
+    <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-700
+                    overflow-hidden flex items-center justify-center
+                    text-[11px] font-medium text-gray-600 dark:text-gray-300
+                    shrink-0">
+      {avatarUrl ? (
+        <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
+      ) : (
+        initials
+      )}
     </div>
   );
 }
 
 function LogoMark() {
   return (
-    <div className="flex flex-col gap-[3px] justify-center w-5">
+    <div className="flex flex-col gap-0.75 justify-center w-5">
       <span className="block h-[2.5px] w-full bg-gray-900 dark:bg-white rounded-sm" />
       <span className="block h-[2.5px] w-[65%] bg-gray-900 dark:bg-white rounded-sm" />
     </div>
@@ -368,3 +374,4 @@ function SignOutIcon() {
     </svg>
   );
 }
+
