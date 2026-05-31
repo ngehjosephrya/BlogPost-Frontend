@@ -26,30 +26,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const clearError = () => setError(null);
-
-  useEffect(() => {
-    const rehydrate = async () => {
-      try {
-        const res = await api.get<{ success: boolean; data: User }>("/auth/me");
-        const freshUser = res.data;
-
-        const stored = localStorage.getItem("user");
-        const storedUser = stored ? JSON.parse(stored): {};
-
-        const mergedUser = { ...storedUser, ...freshUser };
-
-        setUser(mergedUser);
-        localStorage.setItem("user", JSON.stringify(mergedUser));
-      } catch {
+// AuthContext.tsx — rehydrate
+useEffect(() => {
+  const rehydrate = async () => {
+    try {
+      const res = await api.get<{ success: boolean; data: User }>("/auth/me");
+      const freshUser = res.data;
+      const stored = localStorage.getItem("user");
+      const storedUser = stored ? JSON.parse(stored) : {};
+      const mergedUser = { ...storedUser, ...freshUser };
+      setUser(mergedUser);
+      localStorage.setItem("user", JSON.stringify(mergedUser));
+    } catch {
+      // ← cookie failed — try localStorage as fallback
+      const stored = localStorage.getItem("user");
+      if (stored) {
+        try {
+          setUser(JSON.parse(stored));
+        } catch {
+          localStorage.removeItem("user");
+          setUser(null);
+        }
+      } else {
         setUser(null);
-        localStorage.removeItem("user");
-      } finally {
-        setIsLoading(false);
       }
-    };
-
-    rehydrate();
-  }, []);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  rehydrate();
+}, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
     try {
