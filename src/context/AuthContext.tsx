@@ -65,6 +65,7 @@ useEffect(() => {
 
       setUser(res.data.user);
       localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("token", res.data.token);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Sign in failed";
       setError(message);
@@ -80,6 +81,7 @@ useEffect(() => {
         const res = await authService.signUp({ name, email, password });
         setUser(res.data.user);
         localStorage.setItem("user", JSON.stringify(res.data.user));
+        localStorage.setItem("token", res.data.token);
       } catch (err) {
         const message = err instanceof Error ? err.message : "Sign up failed";
         setError(message);
@@ -96,6 +98,7 @@ useEffect(() => {
     } finally {
       setUser(null);
       localStorage.removeItem("user");
+      localStorage.removeItem("token");
     }
   }, []);
 
