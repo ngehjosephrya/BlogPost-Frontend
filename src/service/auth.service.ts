@@ -1,50 +1,25 @@
-// service/auth.service.ts
-import { api } from "../lib/api";
+import {api} from "../lib/api";
+import type {AuthResponse, SignOutResponse} from "../types";
 
-export interface SignInCredentials {
-  email: string;
-  password: string;
-}
+type SignUpPayload = {
+    name: string;
+    email: string;
+    password: string;
+};
 
-export interface SignUpData {
-  name: string;
-  email: string;
-  password: string;
-}
-
-export interface AuthResponse {
-  success?: boolean;
-  message: string;
-  data: {
-    user: {
-      id: string;
-      name: string;
-      email: string;
-      avatarUrl: string | null;
-      createdAt: string;
-    };
-    token?: string;
-  };
+type SignInPayload = {
+    email: string;
+    password: string;
 }
 
 export const authService = {
-  signIn: async (credentials: SignInCredentials): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>("/auth/signin", credentials);
-    return response;
-  },
+    signUp: (data: SignUpPayload) => 
+        api.post<AuthResponse>("/auth/sign-up", data),
 
-  signUp: async (data: SignUpData): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>("/auth/signup", data);
-    return response;
-  },
+    signIn: (data: SignInPayload) => 
+        api.post<AuthResponse>("/auth/sign-in", data),
 
-  signOut: async (): Promise<{ message: string }> => {
-    const response = await api.post<{ message: string }>("/auth/signout", {});
-    return response;
-  },
-
-  getCurrentUser: async (): Promise<{ success: boolean; data: any }> => {
-    const response = await api.get<{ success: boolean; data: any }>("/auth/me");
-    return response;
-  },
+    signOut: () => 
+        api.post<SignOutResponse>("/auth/sign-out", {}),
 };
+

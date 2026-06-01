@@ -199,7 +199,7 @@ export function Navbar() {
               className="flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-md
                          hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              <UserAvatar name={user?.name ?? "?"} avatarUrl={user?.avatarUrl ?? undefined}  />
+              <UserAvatar name={user?.name ?? "?"} avatarUrl={user?.avatarUrl} />
               <span className="text-sm text-gray-900 dark:text-white">
                 {user?.name.split(" ")[0]}
               </span>
