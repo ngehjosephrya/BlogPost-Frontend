@@ -1,4 +1,3 @@
-// src/lib/api.ts
 const BASE_URL = import.meta.env.VITE_API_URL ?? "/api/v1";
 
 type RequestOptions = {
@@ -11,7 +10,7 @@ async function request<T>(
   endpoint: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  // Get token from localStorage
+
   const token = localStorage.getItem("token");
 
   const headers: Record<string, string> = {
@@ -19,14 +18,13 @@ async function request<T>(
     ...options.headers,
   };
 
-  // Send as Bearer token if available
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`; // ← add this
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     headers,
-    credentials: "include", // ← keep this too for browsers that support cookies
+    credentials: "include", 
     ...options,
   });
 

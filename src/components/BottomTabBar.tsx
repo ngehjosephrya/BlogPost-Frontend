@@ -11,7 +11,6 @@ export function BottomTabBar() {
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Close menu on outside tap
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -22,7 +21,6 @@ export function BottomTabBar() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  // Close menu on route change
   useEffect(() => {
     setMenuOpen(false);
   }, [location.pathname]);
@@ -43,7 +41,6 @@ export function BottomTabBar() {
 
   return (
     <>
-      {/* Slide-up menu — shown above tab bar when avatar tapped */}
       {menuOpen && isAuthenticated && (
         <div
           className="fixed inset-0 z-40 bg-black/30"
@@ -244,7 +241,7 @@ function WriteIcon() {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
          stroke="white" strokeWidth="2" strokeLinecap="round"
          strokeLinejoin="round" aria-hidden="true"
-         className="dark:[stroke:theme(colors.gray.900)]">
+         className="dark:stroke-gray-900">
       <path d="M12 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7" />
       <path d="M18.375 2.625a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z" />
     </svg>
