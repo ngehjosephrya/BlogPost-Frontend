@@ -61,11 +61,9 @@ export const postService = {
 
     const res = await fetch(`${BASE_URL}/upload/image`, {
         method: "POST",
-        body: formData,
         credentials: "include",
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body: formData,
     });
 
     const data: ImageUplaodResponse = await res.json();

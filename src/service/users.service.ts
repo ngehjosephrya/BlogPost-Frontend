@@ -36,11 +36,14 @@ export const usersService = {
     const formData = new FormData();
     formData.append("image", file);
 
+    const token = localStorage.getItem("token");
+
     const BASE_URL = import.meta.env.VITE_API_URL ?? "/api/v1";
 
     const res = await fetch(`${BASE_URL}/upload/avatar`,{
       method:      "POST",
       credentials: "include",
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       body:        formData,
     });
 
